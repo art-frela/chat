@@ -18,9 +18,9 @@ type Users []User
 // Message is chat text message entity,
 // which has id, author - who wrote message and body
 type Message struct {
-	ID     string
-	Author string
-	Body   string
+	ID     string `json:"id,omitempty"`
+	Author string `json:"author"`
+	Body   string `json:"body"`
 }
 
 type Messages []Message

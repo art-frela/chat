@@ -10,20 +10,16 @@ import (
 
 type ChatClient struct {
 	domain.User
+	chat      *ChatRoom
 	rcv       chan domain.Message
-	snd       chan domain.Message
 	sessionID string
 	counter   uint64
 }
 
-func NewChatClient(user domain.User) *ChatClient {
-	return &ChatClient{
-		user, make(chan domain.Message, 1), nil, uuid.NewV4().String(), 0,
-	}
-}
-
-func (cc *ChatClient) AddSendChan(out chan domain.Message) {
-	cc.snd = out
+func NewChatClient(user domain.User, room *ChatRoom) *ChatClient {
+	cc := &ChatClient{user, room, make(chan domain.Message, 1), uuid.NewV4().String(), 0}
+	room.AddMember(user, cc.rcv)
+	return cc
 }
 
 func (cc *ChatClient) SendMsg(txt string) {
@@ -33,9 +29,14 @@ func (cc *ChatClient) SendMsg(txt string) {
 		Body:   txt,
 	}
 	cc.counter += 1
-	cc.snd <- msg
+	cc.chat.rcv <- msg
 }
 
-func (cc *ChatClient) RecieveMsg() domain.Message {
-	return <-cc.rcv
+func (cc *ChatClient) RecieveMsg() (domain.Message, bool) {
+	msg, more := <-cc.rcv
+	return msg, more
+}
+
+func (cc *ChatClient) LeaveChat() {
+	cc.chat.delMember(cc.User.ID)
 }
