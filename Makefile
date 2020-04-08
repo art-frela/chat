@@ -1,4 +1,5 @@
 APPNAME = "chat"
+DOCKERSPACE = "artfrela"
 # h - help
 h help:
 	@echo "h help 	- this help"
@@ -6,6 +7,7 @@ h help:
 	@echo "run 	- run the app"
 	@echo "clean 	- clean app trash"
 	@echo "test 	- run all tests"
+	@echo "docker 	- build docker image and pull to dockerhub"
 .PHONY: h
 
 # build - build the app
@@ -26,3 +28,9 @@ clean:
 test:
 	go test -cover ./...
 .PHONY: test
+
+# docker build
+docker:
+	docker build . -t $(DOCKERSPACE)/$(APPNAME):latest
+	docker push $(DOCKERSPACE)/$(APPNAME):latest
+.PHONY: docker
